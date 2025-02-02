@@ -23,7 +23,7 @@ bool pulsa = 0;
 int contador = -1;
 
 bool estado = 0;                 /* Por defecto,
-								    a xanela está abaixo*/
+				    a xanela está abaixo*/
 bool stop = true;                // Por defecto o motor está parado
 
 
@@ -39,7 +39,7 @@ void setup()
   pinMode(SENSOR_UP, INPUT);     // Sensor de fin de carreira superior
   pinMode(SENSOR_DOWN, INPUT);   // Sensor de fin de carreira inferior
 
-  Serial.begin(9600);			 // Para ver o Monitor Serie
+  Serial.begin(9600);	         // Para ver o Monitor Serie
 }
 
 void loop(){
@@ -53,8 +53,8 @@ void loop(){
     
    while(digitalRead(BOTON)){ 
       delay(20);                 /* Aseguro unha única lectura.
-      							    Por eso lle poño unha espera de 20ms 
-							        entre lecturas de pulsación.*/
+      				    Por eso lle poño unha espera de 20ms 
+				    entre lecturas de pulsación.*/
    }
     
     if (!stop)
@@ -65,15 +65,15 @@ void loop(){
 /*********** Cancelamos a Marcha dos Motores. ************/
   
     
-    if (stop == true || contador <= 0){	 
+  if (stop == true || contador <= 0){	 
       
                                  /* Tanto Stop como o contador        
-                                     paran ámbolos dous motores */
+                                    paran ámbolos dous motores */
   
 
     digitalWrite(UP, LOW);       // Para de subir.
     digitalWrite(DOWN, LOW);     // Para de baixar.    
-    }
+   }
 
   
 /*********** Comprobamos os SENSORES. ************/
@@ -99,7 +99,7 @@ void loop(){
     }
   }
     
-   if (estado == false) {        // Se está baixando... 
+  if (estado == false) {         // Se está baixando... 
                        
 	 if (digitalRead(SENSOR_DOWN) == HIGH  || contador == 0) {
        
