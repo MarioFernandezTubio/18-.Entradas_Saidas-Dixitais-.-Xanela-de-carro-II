@@ -1,4 +1,4 @@
-/******************* 
+/************************************************************** 
 
 O funcionamento actual da montaxe será como se indica a seguir:
 
@@ -11,7 +11,7 @@ O funcionamento actual da montaxe será como se indica a seguir:
    pode parar o vidro (unha pulsación) 
    ou invertir o movemento (seguinte pulsación).
 
-*********************/
+***************************************************************/
 
 #define UP 7
 #define DOWN 6
@@ -24,6 +24,10 @@ int contador = -1;
 
 bool estado = 0;                 /* Por defecto,
 								    a xanela está abaixo*/
+bool stop = true;                // Por defecto o motor está parado
+
+
+/*************************************************************/
 
 void setup()
     
@@ -44,51 +48,78 @@ void loop(){
   
   pulsa = digitalRead(BOTON);    // Miro se o botón está pulsado.
  
-  if ( pulsa == true ){          // Se o botón se pulsa...
- 
-    estado = !estado;            // Alternamos estado do pulsador
+  if ( pulsa == true ){          // Se o botón se pulsa...    
+    stop = !stop;                // Alternamos estado de parado
     
    while(digitalRead(BOTON)){ 
       delay(20);                 /* Aseguro unha única lectura.
       							    Por eso lle poño unha espera de 20ms 
 							        entre lecturas de pulsación.*/
-    }
-          
-    digitalWrite(UP, estado);    // Sube o vidro.
-    digitalWrite(DOWN,!estado);  // Ordenamos que o vidro non baixe.
-    contador = 700;              // Tempo que dura subindo ou baixando o vidro.
+   }
     
-  }
+    if (!stop)
+    estado = !estado;            // Alternamos estado do pulsador
+    contador = 700;              // Tempo que dura subindo ou baixando o vidro.
+   }
+  
+/*********** Cancelamos a Marcha dos Motores. ************/
+  
+    
+    if (stop == true || contador <= 0){	 
+      
+                                 /* Tanto Stop como o contador        
+                                     paran ámbolos dous motores */
+  
+
+    digitalWrite(UP, LOW);       // Para de subir.
+    digitalWrite(DOWN, LOW);     // Para de baixar.    
+    }
+
   
 /*********** Comprobamos os SENSORES. ************/
-
-  if (estado == true) {          // Se está subindo...    
-  	if (digitalRead(SENSOR_UP) == HIGH ) {
+ 
+  if (estado == true) {          // Se está subindo...  
+    
+  	if (digitalRead(SENSOR_UP) == HIGH || contador == 0 ) {
+      
+                                 /* Tanto o "sensor Up" como 
+                                    o contador        
+                                    paran ámbolos dous motores */
 
    	    digitalWrite(UP, LOW);   // Para de subir.
         contador = 0;            // Cancelamos contador.
-    } 
-  } 
-  if (estado == false) {         // Se está baixando...    
-	if (digitalRead(SENSOR_DOWN) == HIGH ) {
-      
-        digitalWrite(DOWN, LOW); // Para de baixar.
-        contador = 0;            // Cancelamos contador.
-    }
-  } 
- 
-/*********** Cancelamos a Marcha dos Motores. ************/
-  
-  if ( contador > 0 ){           // Se o contador é maior a "0".
+        stop = true;             // Pasamos a estar en STOP.
     
-    contador -= 1;			     // Desconta 1 segundo.                           
-  
-  } else{
-    digitalWrite(UP, LOW);       // Para de subir.
-    digitalWrite(DOWN, LOW);     // Para de baixar.
+  } else if (!stop) {            // Pero se non está en STOP...
+       
+        digitalWrite(UP, HIGH);  // Mantente subindo
+        digitalWrite(DOWN, LOW); // E confirmo que non baixa.
+       
+        contador-= 1;            // O contador desconta 1 segundo. 
     }
-  
-  
+  }
+    
+   if (estado == false) {        // Se está baixando... 
+                       
+	 if (digitalRead(SENSOR_DOWN) == HIGH  || contador == 0) {
+       
+                                 /* Tanto o "sensor Up" como 
+                                    o contador        
+                                    paran ámbolos dous motores */
+       
+      digitalWrite(DOWN, LOW);   // Para de baixar.
+      contador = 0;              // Cancelamos contador.
+      stop = true;               // Pasamos a estar en STOP.
+       
+   } else if (!stop) {           // Pero se non está en STOP...
+       
+      digitalWrite(DOWN, HIGH);  // Mantén baixando
+      digitalWrite(UP, LOW);     // E confirmo que non sube.
+       
+      contador-= 1;              // O contador desconta 1 segundo.     
+
+   }
+  }
 /***************  Monitor Serie  ***************/
   
   Serial.print(estado); Serial.print("  "); Serial.println(contador);
